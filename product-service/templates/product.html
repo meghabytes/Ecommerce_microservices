@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Products</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        .btn {
+            padding: 8px 12px;
+            background-color: #7e5399;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #7e5399;
+        }
+    </style>
+</head>
+<body>
+    <h1>Products</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product['Name'] }}</td>
+                <td>{{ product['Price'] }}</td>
+                <td>{{ product['Description'] }}</td>
+                <td>
+                    <button class="btn add-to-cart" data-product-id="{{ product['_id'] }}" data-product-name="{{ product['Name'] }}">Add to Cart</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <script>
+        // Event listeners for DOMContentLoaded to ensure the DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add to Cart functionality
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', event => {
+                    const productId = button.dataset.productId;
+                    const productName = button.dataset.productName;
+
+                    // Send a POST request to add the item to the cart
+                    fetch('/add_to_cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: `product_id=${productId}&product_name=${productName}`
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json(); // Parse the JSON response
+                        } else {
+                            throw new Error('Failed to add to cart');
+                        }
+                    })
+                    .then(data => {
+                        alert(`Item "${productName}" added to cart successfully!`);
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`);
+                    });
+                });
+            });
+
+            // Checkout functionality
+            document.querySelector('.btn.checkout').addEventListener('click', event => {
+                // Send a POST request to checkout
+                fetch('/checkout', {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();  // Parse the JSON response
+                } else {
+                    throw new Error('Checkout failed');
+                }
+            })
+            .then(data => {
+                alert(`Checkout completed successfully! Order ID: ${data.order_id}, Total Price: $${data.total_price}`);
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
+        });
+    });
+    </script>
+    
+    <br>
+    <button class="btn checkout">Checkout</button>
+</body>
+</html>
+
+
