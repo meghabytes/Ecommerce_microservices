@@ -28,17 +28,7 @@ def get_products():
         print(product)
     return render_template('product.html', products=products)
 
-@app.route('/add_product', methods=['POST'])
-def add_product():
-    name = request.form.get('name')
-    price = float(request.form.get('price'))  # Convert price to float
-    description = request.form.get('description')
 
-    product = {'Name': name, 'Price': price, 'Description': description}
-    collection.insert_one(product)
-    print(product)
-
-    return jsonify({'message': 'Product added successfully!'})
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -100,9 +90,7 @@ def checkout():
         print("Failed to create order")
         return jsonify({'error': 'Checkout failed!'}), 500
 
-@app.route('/order', methods=['POST', 'GET'])
-def change_to_order():
-    return redirect(f'http://localhost:5003/?userID={userID}')
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
