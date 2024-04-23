@@ -1,1 +1,1 @@
-Have 3 microservices running on kubernetes.
+Have 4 microservices fully deployed and running on kubernetes.
