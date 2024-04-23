@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart Overview</title>
+    <style>
+        /* Set background color and text color */
+        body {
+            background-color: #FADADD; /* Baby pink */
+            color: #7e5399; /* Purple */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Center content */
+        #wrapper {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+        }
+
+        /* Style the form elements and buttons */
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #7e5399; /* Light purple */
+            color: white;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #6b4d8d; /* Darker purple */
+        }
+
+        form {
+            display: inline-block; /* Display forms inline */
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <h1>Here is your cart overview</h1>
+
+        {% if cart_items %}
+            <ul>
+                {% for item in cart_items %}
+                    <li>
+                        {{ item['product_name'] }}
+                        <form method="post" action="/remove_from_cart">
+                            <input type="hidden" name="userID" value="{{ userID }}">
+                            <input type="hidden" name="product_id" value="{{ item['product_id'] }}">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+            
+            <!-- Display the total price for the cart -->
+            <h2>Total Price: ${{ total_price }}</h2>
+
+            <!-- Add the "Make Payment" button -->
+            <form method="post" action="/make_payment">
+                <input type="hidden" name="userID" value="{{ userID }}">
+                <button type="submit">Make Payment</button>
+            </form>
+
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+
+        <!-- Thank you message -->
+        <p>Thank you for choosing to shop with us.</p>
+    </div>
+</body>
+</html>
+
+

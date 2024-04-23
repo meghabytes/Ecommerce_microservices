@@ -28,7 +28,17 @@ def get_products():
         print(product)
     return render_template('product.html', products=products)
 
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    name = request.form.get('name')
+    price = float(request.form.get('price'))  # Convert price to float
+    description = request.form.get('description')
 
+    product = {'Name': name, 'Price': price, 'Description': description}
+    collection.insert_one(product)
+    print(product)
+
+    return jsonify({'message': 'Product added successfully!'})
 
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
@@ -48,49 +58,56 @@ def add_to_cart():
 @app.route('/checkout', methods=['POST'])
 def checkout():
     global userID
-    print("Starting checkout process with userID:", userID)
+    #print("Starting checkout process with userID:", userID)
 
-    cart_items = list(cart_collection.find({'userID': userID}))
-    if not cart_items:
-        print("No items in the cart for userID:", userID)
-        return jsonify({'error': 'Cart is empty!'}), 400
+    #cart_items = list(cart_collection.find({'userID': userID}))
+    #if not cart_items:
+     #   print("No items in the cart for userID:", userID)
+      #  return jsonify({'error': 'Cart is empty!'}), 400
 
-    total_price = 0
-    for item in cart_items:
-        product = collection.find_one({'_id': ObjectId(item['product_id'])})
-        if product is None:
-            print("Product not found for product_id:", item['product_id'])
-            return jsonify({'error': 'Product not found!'}), 404
-        price_str = product['Price'].replace('$', '').strip()  # Remove dollar sign and trim whitespace
-        price = float(price_str)
+    #total_price = 0
+    #for item in cart_items:
+     #   product = collection.find_one({'_id': ObjectId(item['product_id'])})
+    #    if product is None:
+     #      print("Product not found for product_id:", item['product_id'])
+      #      return jsonify({'error': 'Product not found!'}), 404
+      #  price_str = product['Price'].replace('$', '').strip()  # Remove dollar sign and trim whitespace
+      #  price = float(price_str)
         
-        total_price += price
+      #  total_price += price
 
 
     # Additional logging to ensure the total_price calculation works
-    print("Total price calculated:", total_price)
+    #print("Total price calculated:", total_price)
 
-    order = {
-        'userID': userID,
-        'items': cart_items,
-        'total_price': total_price,
-        'status': 'Completed'
-    }
-    result = orders_collection.insert_one(order)
+    #order = {
+    #    'userID': userID,
+     #   'items': cart_items,
+     #   'total_price': total_price,
+     #   'status': 'Completed'
+    #}
+   # result = orders_collection.insert_one(order)
     
-    if result.acknowledged:
-        cart_collection.delete_many({'userID': userID})
-        print("Order created with order_id:", result.inserted_id)
-        return jsonify({
-            'message': 'Checkout completed successfully!',
-            'order_id': str(result.inserted_id),
-            'total_price': total_price
-        }), 200
-    else:
-        print("Failed to create order")
-        return jsonify({'error': 'Checkout failed!'}), 500
+    #if result.acknowledged:
+     #   cart_collection.delete_many({'userID': userID})
+     #   print("Order created with order_id:", result.inserted_id)
+      #  return jsonify({
+      #      'message': 'Checkout completed successfully!',
+      #     'order_id': str(result.inserted_id),
+       #     'total_price': total_price
+      #  }), 200
+   # else:
+       # print("Failed to create order")
+        #return jsonify({'error': 'Checkout failed!'}), 500
 
+    print("Redirecting to cart overview with userID:", userID)
 
+    # Redirect to the cart microservice, passing the userID as a query parameter
+    return redirect(f'http://192.168.49.2:30226/cart?userID={userID}')    
+
+@app.route('/order', methods=['POST', 'GET'])
+def change_to_order():
+    return redirect(f'http://localhost:5003/?userID={userID}')
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

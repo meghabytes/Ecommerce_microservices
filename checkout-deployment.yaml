@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: checkout-app
+  template:
+    metadata:
+      labels:
+        app: checkout-app
+    spec:
+      containers:
+      - name: checkout-app
+        image: meghanam2525/check-service:1.0.1
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MONGO_HOST
+          value: mongodb-service
+        - name: MONGO_PORT
+          value: "27017"
+        - name: FLASK_ENV
+          value: "production"
